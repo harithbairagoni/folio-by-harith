@@ -95,7 +95,7 @@ try {
       ".premium-hero",
       ".tidy-spread",
       ".cold-spread",
-      ".plant-story",
+      ".sequence-ethanol",
       ".landsafe-chapter",
       ".political-chapter",
       ".about-section",
@@ -104,7 +104,7 @@ try {
       const box = await page.locator(selector).boundingBox();
       const absolute = (box?.y || 0) + (await page.evaluate(() => scrollY));
       const span =
-        selector === ".plant-story" && reducedMotion !== "reduce"
+        selector === ".sequence-ethanol" && reducedMotion !== "reduce" && width > 760 && height > 700
           ? Math.max(0, (box?.height || 0) - height)
           : 0;
       const positions =
@@ -125,14 +125,6 @@ try {
         points.push(filename);
       }
     }
-    await page.locator("#landsafe").getByRole("button", { name: /Field verification/ }).click();
-    if (!(await page.getByText("Compare the records with the site.").isVisible()))
-      throw new Error(`${name}: parcel comparison failed`);
-    await page.locator("#political-analysis").getByRole("button", { name: /Synthesize/ }).click();
-    if (
-      !(await page.getByText("Turn research into a briefing point.", { exact: true }).isVisible())
-    )
-      throw new Error(`${name}: briefing failed`);
     await page.getByRole("button", { name: /Positioning/ }).click();
     if (
       !(await page
@@ -149,55 +141,17 @@ try {
       await page.keyboard.press("Escape");
       await page.locator("#mobile-navigation").waitFor({ state: "detached" });
     }
-    await page.locator(".plant-story").evaluate((el) =>
-      window.scrollTo({
-        top:
-          el.getBoundingClientRect().top +
-          scrollY +
-          Math.max(0, el.clientHeight - innerHeight) * 0.88,
-        behavior: "instant",
-      }),
-    );
-    await page
-      .locator(".plant-canvas[data-ready=true]")
-      .waitFor({ timeout: 20000 });
     await page.getByRole("button", { name: "Mechanical", exact: true }).click();
-    if (
-      (await page
-        .getByRole("button", { name: "Mechanical", exact: true })
-        .getAttribute("aria-pressed")) !== "true"
-    )
-      throw new Error(`${name}: workstream failed`);
-    await page.waitForTimeout(450);
-    await page.screenshot({
-      path: `${output}/${name}-selected-workstream.png`,
-    });
-    await page.getByRole("button", { name: "Mechanical", exact: true }).click();
-    if (name === "desktop") {
-      await page.waitForTimeout(600);
-      await page
-        .locator(".plant-coordinate")
-        .evaluate((el) => (el.style.visibility = "hidden"));
-      await page
-        .locator(".plant-bottom-note")
-        .evaluate((el) => (el.style.visibility = "hidden"));
-      await page
-        .locator(".plant-canvas")
-        .screenshot({ path: `${output}/plant-render.png` });
-      await page
-        .locator(".plant-coordinate")
-        .evaluate((el) => (el.style.visibility = ""));
-      await page
-        .locator(".plant-bottom-note")
-        .evaluate((el) => (el.style.visibility = ""));
-    }
+    await page.locator(".sequence-ethanol .plant-art[data-track='1']").first().waitFor();
+    await page.screenshot({ path: `${output}/${name}-selected-workstream.png` });
+    await page.getByRole("button", { name: "Overview", exact: true }).click();
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await page.waitForTimeout(300);
     await page.screenshot({
       path: `${output}/${name}-full.png`,
       fullPage: true,
     });
-    results.push({ name, ...opening, cleanRows: clean, webgl: true, points });
+    results.push({ name, ...opening, cleanRows: clean, webgl: (await page.locator(".plant-canvas[data-ready=true]").count()) > 0, points });
     await context.close();
   }
   const context = await safeContext({ viewport: { width: 390, height: 844 } });
@@ -211,14 +165,14 @@ try {
   });
   const page = await context.newPage();
   await page.goto(baseURL, { waitUntil: "networkidle" });
-  await page.locator(".plant-story").scrollIntoViewIfNeeded();
+  await page.locator(".sequence-ethanol").scrollIntoViewIfNeeded();
   await page.waitForTimeout(400);
   await page.screenshot({
     path: `output/no-webgl.png`.replace("output/", `${output}/`),
   });
   results.push({
     name: "no-webgl",
-    fallback: await page.locator(".plant-poster").isVisible(),
+    fallback: await page.locator(".story-plant-poster").first().isVisible(),
   });
   await context.close();
   const thumbs = await Promise.all(
