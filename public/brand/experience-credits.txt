@@ -1,0 +1,9 @@
+LandSafe logo: original artwork supplied by Harith Bairagoni. Optimized to WebP with transparent margins trimmed. Original colors and design retained.
+
+Telangana map: Arjunaraoc / Wikimedia Commons, Telangana locator map.svg.
+Source: https://commons.wikimedia.org/wiki/File:Telangana_locator_map.svg
+License: Creative Commons Attribution-ShareAlike 4.0
+https://creativecommons.org/licenses/by-sa/4.0/
+Adaptation: Telangana district geometry extracted; surrounding states, rivers and frame removed; colors changed; converted to WebP. This adapted map is also licensed CC BY-SA 4.0. Used for geographic context only, not constituency boundaries or campaign data.
+
+All workflow diagrams are illustrative. They do not reproduce client property geometry, voter data, private records or actual project schedules.

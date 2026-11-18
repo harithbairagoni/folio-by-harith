@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ethanol Factory — Interactive Process Design</title>
+<style>
+  :root{
+    --ink:#161b12;
+    --muted:#5c6653;
+    --bg:#f7f6f2;
+    --panel:#ffffff;
+    --line:#d7d4c7;
+    --brand:#2f8f6b;
+    --brand-dark:#247056;
+    --amber:#d9a441;
+    --amber-dark:#b7852e;
+    --font-sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --font-serif:"Instrument Serif",Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--font-sans);overflow:hidden;}
+  body{font-size:clamp(12px,1vw,15px);line-height:1.5;-webkit-tap-highlight-color:transparent;}
+  .stage{display:none;}
+  .stage.active{display:block;}
+  .hide{display:none !important;}
+
+  /* Header */
+  .header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;background:#fff;border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:40;box-shadow:0 1px 0 rgba(0,0,0,0.03);
+  }
+  .brand{display:flex;align-items:center;gap:10px;color:var(--brand-dark);font-weight:700;letter-spacing:-0.02em;}
+  .brand-mark{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#2f8f6b,#4d7cfe);display:grid;place-items:center;font-size:12px;color:#fff;}
+  .brand-text{font-family:var(--font-serif);font-size:17px;}
+  .title-group{text-align:right;}
+  .title-group .kicker{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px;}
+  .title-group h1{font-family:var(--font-serif);font-size:15px;font-weight:700;letter-spacing:-0.01em;}
+  .controls{display:flex;gap:8px;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;font-size:12px;cursor:pointer;transition:transform .06s,box-shadow .1s,border-color .1s,background .1s;}
+  .btn:active{transform:translateY(1px);}
+  .btn:hover{border-color:#b9b6a8;box-shadow:0 1px 2px rgba(0,0,0,0.04);}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .btn.primary:hover{background:var(--brand-dark);border-color:var(--brand-dark);}
+  .btn.small{padding:5px 10px;font-size:11px;}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:999px;font-size:11px;color:var(--muted);user-select:none;}
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:#d7d4c7;}
+  .chip.running .dot{background:var(--brand);box-shadow:0 0 0 4px rgba(47,143,107,.15);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.25);opacity:.6}}
+  .legend-wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .legend{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .legend .swatch{width:10px;height:10px;border-radius:2px;}
+
+  /* Stage container */
+  .wrap{position:relative;height:calc(100vh - 52px);display:flex;flex-direction:column;}
+  .canvas-wrap{position:relative;flex:1;overflow:hidden;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;}
+  svg{display:block;width:100%;height:100%;max-width:1200px;max-height:100%;overflow:visible;}
+
+  /* Tooltip */
+  #tip{position:fixed;pointer-events:none;padding:10px 13px;border-radius:10px;background:rgba(22,27,18,.92);color:#fff;font-size:12px;line-height:1.4;border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 30px rgba(0,0,0,.15);transform:translate(-50%,-110%);opacity:0;transition:opacity .18s,transform .18s;z-index:60;max-width:250px;backdrop-filter:blur(6px);white-space:pre-line;}
+  #tip.open{opacity:1;}
+  #tip b{display:block;font-size:13px;margin-bottom:3px;color:#fff;font-family:var(--font-serif);}
+
+  /* Bottom panel */
+  .bottom{height:150px;background:#fff;border-top:1px solid var(--line);overflow:auto;display:flex;flex-direction:column;}
+  .bottom-title{padding:10px 16px;border-bottom:1px solid var(--line);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:#f7f6f2;flex-shrink:0;}
+  .scroll{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:8px;}
+  .card{display:flex;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;transition:border-color .15s,background .15s;}
+  .card:hover{border-color:#b9b6a8;background:#fcfbf6;}
+  .card.active{border-color:var(--brand);background:#f0f7f3;box-shadow:0 0 0 3px rgba(47,143,107,.1);}
+  .card-thumb{width:42px;height:42px;border-radius:9px;flex-shrink:0;background:#eef1ec;border:1px solid var(--line);display:grid;place-items:center;font-size:16px;}
+  .card-body{min-width:0;flex:1;}
+  .card-name{font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .card-meta{margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);}
+
+  .empty{padding:22px 16px;color:var(--muted);font-size:12.5px;text-align:center;}
+
+  /* Flow / marching ants */
+  .flow-dot{animation:march 1.6s linear infinite;opacity:0;}
+  @keyframes march{0%{opacity:0;offset-distance:0%}40%{opacity:1}60%{opacity:1}100%{opacity:0;offset-distance:100%}}
+
+  .status-ok .node-badge{fill:var(--brand);}
+  .status-idle .node-badge{fill:#c9d1c4;}
+  .status-warn .node-badge{fill:var(--amber);}
+  .status-off .node-badge{fill:#b4b9ae;}
+
+  /* Responsive */
+  @media (max-width:640px){
+    .header{padding:10px 12px;}
+    .title-group{display:none;}
+    .bottom{height:170px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .flow-dot,.chip.running .dot{animation:none !important;}
+    .flow-dot{opacity:0.5 !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="brand">
+    <div class="brand-mark">EF</div>
+    <div class="brand-text">Ethanol<span style="color:#247056">Factory</span></div>
+  </div>
+  <div class="title-group">
+    <div class="kicker">Interactive Process Design</div>
+    <h1 id="pageTitle">Dry-Grind Ethanol Plant</h1>
+  </div>
+  <div class="controls">
+    <button class="btn small" id="btnAuto" title="Run full process animation">Auto<span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--brand);opacity:.9"></span></button>
+    <button class="btn" id="btnReset">Reset</button>
+    <button class="btn primary" id="btnExport">Export PNG</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="canvas-wrap" id="canvasWrap" role="region" aria-label="Ethanol factory process diagram">
+    <svg id="svg" viewBox="0 0 1100 700" preserveAspectRatio="xMidYMid meet" tabindex="0" aria-roledescription="process diagram">
+      <defs>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+        <linearGradient id="gTank" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#eef2ef"/><stop offset="100%" stop-color="#dde3dc"/></linearGradient>
+        <linearGradient id="gPipe" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#b7c4bb"/><stop offset="50%" stop-color="#cfd8d2"/><stop offset="100%" stop-color="#b7c4bb"/></linearGradient>
+        <linearGradient id="gFerment" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fdf6ec"/><stop offset="100%" stop-color="#f2e3cf"/></linearGradient>
+        <linearGradient id="gDistill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#eef6ff"/><stop offset="100%" stop-color="#d3e4f5"/></linearGradient>
+        <linearGradient id="gDenat" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fdf3e7"/><stop offset="100%" stop-color="#f5ddc0"/></linearGradient>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L10,5 L0,10 z" fill="#8a9487"/>
+        </marker>
+        <marker id="arrowBrand" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L10,5 L0,10 z" fill="#2f8f6b"/>
+        </marker>
+        <pattern id="grain" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+          <rect width="16" height="16" fill="#edece5"/>
+          <path d="M2 14 Q8 2 14 14 T2 14" fill="none" stroke="#c9c6b9" stroke-width="1"/>
+        </pattern>
+      </defs>
+
+      <rect width="1100" height="700" fill="#fff"/>
+      <rect x="0" y="620" width="1100" height="80" fill="#f2f1ea"/>
+      <path d="M0,620 L1100,620" stroke="#e4e2d8" stroke-width="1"/>
+
+      <!-- Legend -->
+      <g transform="translate(20,26)">
+        <rect x="0" y="-4" width="330" height="24" rx="12" fill="#f7f6f2" stroke="#e4e2d8"/>
+        <g class="legend" transform="translate(14,6)"><rect class="swatch" fill="#2f8f6b"/><text font-size="11" fill="#5c6653" x="16" y="9">Active stage</text></g>
+        <g class="legend" transform="translate(128,6)"><rect class="swatch" fill="#c9d1c4"/><text font-size="11" fill="#5c6653" x="16" y="9">Idle</text></g>
+        <g class="legend" transform="translate(216,6)"><rect class="swatch" fill="#d9a441"/><text font-size="11" fill="#5c6653" x="16" y="9">Recycle / byproduct</text></g>
+      </g>
+
+      <text x="550" y="46" text-anchor="middle" font-family="var(--font-serif)" font-size="20" font-weight="700" fill="#161b12" letter-spacing="-0.01em" id="canvasTitle">Dry-Grind Ethanol Plant</text>
+      <text x="550" y="66" text-anchor="middle" font-size="12" fill="#5c6653" letter-spacing=".06em">Corn → Milling → Liquefaction → Fermentation → Distillation → Dehydration → Denaturing → Storage</text>
+
+      <!-- ============ PROCESS DIAGRAM ============ -->
+      <!-- 1 Grain intake -->
+      <g id="node-intake" class="node" data-stage="intake" transform="translate(90,430)">
+        <rect x="0" y="0" width="150" height="110" rx="10" fill="#fff" stroke="#b9c1b7" stroke-width="1.5"/>
+        <rect x="0" y="0" width="150" height="22" rx="10" fill="#2f8f6b"/>
+        <path d="M20,18 L45,32 L70,18" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="85" y="16" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Intake</text>
+        <rect x="25" y="40" width="100" height="50" rx="6" fill="url(#grain)" stroke="#d7d4c7"/>
+        <path d="M35,55 Q60,35 85,55 T115,55" fill="none" stroke="#c9c6b9" stroke-width="1.2"/>
+        <rect x="45" y="96" width="60" height="6" rx="3" fill="#d7d4c7"/>
+        <circle cx="75" cy="108" r="7" fill="#b9c1b7"/>
+      </g>
+      <path class="connector" id="conn-intake-milling" d="M240,485 L300,485" stroke="#2f8f6b" stroke-width="4" fill="none" marker-end="url(#arrowBrand)"/>
+      <path class="connector idle" id="conn-intake-milling-idle" d="M240,485 L300,485" stroke="#c9d1c4" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+      <!-- 2 Milling -->
+      <g id="node-milling" class="node" data-stage="milling" transform="translate(310,430)">
+        <rect x="0" y="0" width="150" height="110" rx="10" fill="#fff" stroke="#b9c1b7" stroke-width="1.5"/>
+        <circle cx="75" cy="20" r="18" fill="#7f9b88"/>
+        <path d="M66,14 L84,14 M75,5 L75,35" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="30" y="42" width="90" height="48" rx="6" fill="#edece5" stroke="#d7d4c7"/>
+        <path d="M40,58 L110,58 M40,74 L110,74 M40,90 L110,90" stroke="#c9c6b9" stroke-width="1.4" stroke-linecap="round"/>
+        <text x="75" y="104" text-anchor="middle" font-size="11" fill="#5c6653">Hammer mill</text>
+      </g>
+      <path class="connector" id="conn-milling-liquefaction" d="M460,485 L520,485" stroke="#2f8f6b" stroke-width="4" fill="none" marker-end="url(#arrowBrand)"/>
+      <path class="connector idle" id="conn-milling-liquefaction-idle" d="M460,485 L520,485" stroke="#c9d1c4" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+      <!-- 3 Liquefaction -->
+      <g id="node-liquefaction" class="node" data-stage="liquefaction" transform="translate(530,430)">
+        <rect x="0" y="0" width="150" height="110" rx="10" fill="#fff" stroke="#b9c1b7" stroke-width="1.5"/>
+        <rect x="30" y="14" width="90" height="56" rx="8" fill="url(#gTank)" stroke="#b9c1b7"/>
+        <rect x="40" y="24" width="70" height="4" rx="2" fill="#d7d4c7"/>
+        <path d="M50,40 L100,40 M50,52 L100,52" stroke="#b9c1b7" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M75,66 L75,92" fill="none" stroke="#2f8f6b" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="75" y="102" text-anchor="middle" font-size="11" fill="#5c6653">Cooker</text>
+      </g>
+      <path class="connector" id="conn-liquefaction-fermentation" d="M680,485 L740,485" stroke="#2f8f6b" stroke-width="4" fill="none" marker-end="url(#arrowBrand)"/>
+      <path class="connector idle" id="conn-liquefaction-fermentation-idle" d="M680,485 L740,485" stroke="#c9d1c4" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+      <path class="connector byproduct" d="M605,540 L605,590 L770,590 L770,525" stroke="#d9a441" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+      <text x="605" y="608" text-anchor="middle" font-size="10.5" fill="#b7852e">Cooling water recycle</text>
+
+      <!-- 4 Fermentation -->
+      <g id="node-fermentation" class="node" data-stage="fermentation" transform="translate(750,300)">
+        <rect x="0" y="0" width="150" height="150" rx="12" fill="#fff" stroke="#b9c1b7" stroke-width="1.5"/>
+        <rect x="30" y="14" width="90" height="122" rx="8" fill="url(#gFerment)" stroke="#e3d9c2"/>
+        <rect x="40" y="28" width="70" height="4" rx="2" fill="#e3d9c2"/>
+        <path d="M50,44 L100,44 M50,58 L100,58" stroke="#e3d9c2" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="75" y="80" text-anchor="middle" font-size="13" fill="#b7852e" font-weight="700">🧫</text>
+        <text x="75" y="108" text-anchor="middle" font-size="11" fill="#5c6653">Yeast</text>
+        <text x="75" y="126" text-anchor="middle" font-size="10.5" fill="#b7852e">CO₂</text>
+        <path d="M75,138 L75,146" fill="none" stroke="#b7852e" stroke-width="2" stroke-linecap="round"/>
+      </g>
+      <path class="connector" id="conn-fermentation-distillation" d="M900,445 L980,445" stroke="#2f8f6b" stroke-width="4" fill="none" marker-end="url(#arrowBrand)"/>
+      <path class="connector idle" id="conn-fermentation-distillation-idle" d="M900,445 L980,445" stroke="#c9d1c4" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+      <path class="connector byproduct" d="M825,410 L825,340 L1040,340 L1040,470" stroke="#d9a441" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+      <text x="1040" y="488" text-anchor="middle" font-size="10.5" fill="#b7852e">CO₂ capture</text>
+
+      <!-- 5 Distillation -->
+      <g id="node-distillation" class="node" data-stage="distillation" transform="translate(990,430)">
+        <rect x="0" y="0" width="150" height="110" rx="10" fill="#fff" stroke="#b9c1b7" stroke-width="1.5"/>
+        <rect x="30" y="20" width="90" height="70" rx="8" fill="url(#gDistill)" stroke="#b9c1b7"/>
+        <path d="M40,34 L100,34 M40,50 L100,50 M40,66 L100,66" stroke="#b9c1b7" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="75" y="96" text-anchor="middle" font-size="11" fill="#247056" font-weight="700">🏭</text>
+        <text x="75" y="106" text-anchor="middle" font-size="10.5" fill="#5c6653">Columns</text>
+      </g>
+      <path class="connector" id="conn-distillation-dehydration" d="M1140,485 L20,485" stroke="#2f8f6b" stroke-width="4" fill="none" marker-end="url(#arrowBrand)"/>
+      <path class="connector idle" id="conn-distillation-dehydration-idle" d="M1140,485 L20,485" stroke="#c9d1c4" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+      <!-- 6 Dehydration -->
+      <g id="node-dehydration" class="node" data-stage="dehydration" transform="translate(20,290)">
+        <rect x="0" y="0" width="150" height="110" rx="10" fill="#fff" stroke="#b9c1b7" stroke-width="1.5"/>
+        <rect x="40" y="18" width="70" height="74" rx="8" fill="url(#gDistill)" stroke="#b9c1b7"/>
+        <path d="M50,32 L80,32 M50,48 L80,48 M50,64 L80,64" stroke="#b9c1b7" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="75" y="96" text-anchor="middle" font-size="11" fill="#247056" font-weight="700">❄️</text>
+        <text x="75" y="106" text-anchor="middle" font-size="10.5" fill="#5c6653">Sieves</text>
+      </g>
+      <path class="connector" id="conn-dehydration-denaturing" d="M170,345 L230,345" stroke="#2f8f6b" stroke-width="4" fill="none" marker-end="url(#arrowBrand)"/>
+      <path class="connector idle" id="conn-dehydration-denaturing-idle" d="M170,345 L230,345" stroke="#c9d1c4" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+      <!-- 7 Denaturing -->
+      <g id="node-denaturing" class="node" data-stage="denaturing" transform="translate(240,170)">
+        <rect x="0" y="0" width="150" height="110" rx="10" fill="#fff" stroke="#b9c1b7" stroke-width="1.5"/>
+        <rect x="30" y="20" width="90" height="70" rx="8" fill="url(#gDenat)" stroke="#e8d4b8"/>
+        <path d="M45,34 L105,34 M45,50 L105,50" stroke="#e8d4b8" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="75" y="96" text-anchor="middle" font-size="11" fill="#b7852e" font-weight="700">⛽</text>
+        <text x="75" y="106" text-anchor="middle" font-size="10.5" fill="#5c6653">Blend</text>
+      </g>
+      <path class="connector" id="conn-denaturing-storage" d="M390,225 L450,225" stroke="#2f8f6b" stroke-width="4" fill="none" marker-end="url(#arrowBrand)"/>
+      <path class="connector idle" id="conn-denaturing-storage-idle" d="M390,225 L450,225" stroke="#c9d1c4" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+      <!-- 8 Storage -->
+      <g id="node-storage" class="node" data-stage="storage" transform="translate(460,170)">
+        <rect x="0" y="0" width="150" height="110" rx="10" fill="#fff" stroke="#b9c1b7" stroke-width="1.5"/>
+        <rect x="30" y="14" width="40" height="82" rx="4" fill="#b9c1b7"/>
+        <rect x="80" y="14" width="40" height="82" rx="4" fill="#b9c1b7"/>
+        <rect x="45" y="100" width="60" height="6" rx="3" fill="#d7d4c7"/>
+        <text x="75" y="104" text-anchor="middle" font-size="10.5" fill="#5c6653">Tanks</text>
+      </g>
+      <path class="connector" id="conn-storage-shipping" d="M610,225 L670,225" stroke="#2f8f6b" stroke-width="4" fill="none" marker-end="url(#arrowBrand)"/>
+      <path class="connector idle" id="conn-storage-shipping-idle" d="M610,225 L670,225" stroke="#c9d1c4" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+      <!-- Shipping -->
+      <g id="node-shipping" class="node" data-stage="shipping" transform="translate(680,170)">
+        <rect x="0" y="40" width="110" height="34" rx="6" fill="#edece5" stroke="#c9c6b9"/>
+        <rect x="10" y="50" width="26" height="18" rx="3" fill="#b9c1b7"/>
+        <rect x="74" y="50" width="26" height="18" rx="3" fill="#b9c1b7"/>
+        <circle cx="24" cy="82" r="8" fill="#373d33"/>
+        <circle cx="96" cy="82" r="8" fill="#373d33"/>
+        <rect x="10" y="22" width="30" height="20" rx="3" fill="#247056"/>
+        <text x="75" y="104" text-anchor="middle" font-size="10.5" fill="#5c6653">Tanker</text>
+      </g>
+
+      <g id="flowLayer"></g>
+      <g id="badgeLayer"></g>
+    </svg>
+  </div>
+
+  <div id="tip" role="tooltip"></div>
+
+  <div class="bottom">
+    <div class="bottom-title" id="bottomTitle">Process stages</div>
+    <div class="scroll" id="stageList"></div>
+  </div>
+</div>
+
+<script>
+const stages = [
+  {id:'intake', title:'Grain Intake & Storage', desc:'Corn is received, sampled, cleaned and stored in silos before milling.', icon:'🌽'},
+  {id:'milling', title:'Milling / Grinding', desc:'Corn kernels are ground into flour (meal) to expose starch for fermentation.', icon:'⚙️'},
+  {id:'liquefaction', title:'Liquefaction & Cooking', desc:'Meal is mixed with water and enzymes, then cooked to break starch into dextrins.', icon:'🍲'},
+  {id:'fermentation', title:'Fermentation', desc:'Yeast converts sugars into ethanol and CO₂ over ~48–60 hours.', icon:'🧫'},
+  {id:'distillation', title:'Distillation', desc:'The fermented broth is distilled to separate ethanol from water and solids.', icon:'🏭'},
+  {id:'dehydration', title:'Dehydration', desc:'Molecular sieves remove remaining water to produce ~200-proof ethanol.', icon:'❄️'},
+  {id:'denaturing', title:'Denaturing', desc:'A small amount of gasoline makes the ethanol unfit for beverage use (fuel ethanol).', icon:'⛽'},
+  {id:'storage', title:'Storage & Shipping', desc:'Finished denatured ethanol is stored and loaded onto trucks/rail for blending terminals.', icon:'🚛'},
+];
+
+const nodeOrder = ['intake','milling','liquefaction','fermentation','distillation','dehydration','denaturing','storage','shipping'];
+const svg = document.getElementById('svg');
+const flowLayer = document.getElementById('flowLayer');
+const badgeLayer = document.getElementById('badgeLayer');
+const tip = document.getElementById('tip');
+const stageList = document.getElementById('stageList');
+const btnAuto = document.getElementById('btnAuto');
+const btnReset = document.getElementById('btnReset');
+const canvasWrap = document.getElementById('canvasWrap');
+const pageTitle = document.getElementById('pageTitle');
+const canvasTitle = document.getElementById('canvasTitle');
+
+let activeIndex = null;
+let running = false;
+let flowDots = [];
+
+// Connector pairs with IDs for marching-ants animation
+const connectorPairs = [
+  ['node-intake','node-milling','conn-intake-milling','conn-intake-milling-idle'],
+  ['node-milling','node-liquefaction','conn-milling-liquefaction','conn-milling-liquefaction-idle'],
+  ['node-liquefaction','node-fermentation','conn-liquefaction-fermentation','conn-liquefaction-fermentation-idle'],
+  ['node-fermentation','node-distillation','conn-fermentation-distillation','conn-fermentation-distillation-idle'],
+  ['node-distillation','node-dehydration','conn-distillation-dehydration','conn-distillation-dehydration-idle'],
+  ['node-dehydration','node-denaturing','conn-dehydration-denaturing','conn-dehydration-denaturing-idle'],
+  ['node-denaturing','node-storage','conn-denaturing-storage','conn-denaturing-storage-idle'],
+  ['node-storage','node-shipping','conn-storage-shipping','conn-storage-shipping-idle'],
+];
+
+function init(){
+  // Badges
+  nodeOrder.forEach((id,i)=>{
+    const node = document.getElementById('node-'+id);
+    if(!node) return;
+    const bb = node.getBBox();
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','badge status-idle');
+    g.setAttribute('transform',`translate(${bb.x+bb.width/2},${bb.y+bb.height+16})`);
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('r','14');circle.setAttribute('fill','#c9d1c4');circle.setAttribute('class','node-badge');
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x','0');t.setAttribute('y','4');t.setAttribute('text-anchor','middle');t.setAttribute('font-size','11');t.setAttribute('fill','#161b12');t.setAttribute('font-weight','700');t.textContent = i+1;
+    g.appendChild(circle);g.appendChild(t);badgeLayer.appendChild(g);
+  });
+
+  // Flow dots along each main connector
+  connectorPairs.forEach(([a,b,activeId,idleId],ci)=>{
+    const na=document.getElementById(a), nb=document.getElementById(b);
+    if(!na||!nb) return;
+    const aba=na.getBBox(), abb=nb.getBBox();
+    const x1=aba.x+aba.width, y1=aba.y+aba.height/2;
+    const x2=abb.x, y2=abb.y+abb.height/2;
+    for(let d=0;d<3;d++){
+      const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('r','4');dot.setAttribute('fill','#2f8f6b');dot.setAttribute('class','flow-dot');
+      dot.style.offsetPath=`path('M${x1},${y1} L${x2},${y2}')`;
+      dot.style.offsetDistance=`${(d/3)*100}%`;
+      dot.style.opacity='0';
+      dot.dataset.conn = activeId;
+      flowLayer.appendChild(dot);
+      flowDots.push(dot);
+    }
+    // initially show idle connector, hide active
+    document.getElementById(activeId).style.display='none';
+    document.getElementById(idleId).style.display='block';
+  });
+
+  renderList();
+  setActive(null);
+}
+
+function setActive(index){
+  activeIndex = index;
+  // nodes + badges
+  nodeOrder.forEach((id,i)=>{
+    const node=document.getElementById('node-'+id);
+    const badge=badgeLayer.children[i];
+    if(!node) return;
+    const isActive = i===index;
+    node.setAttribute('class', isActive?'node active':'node');
+    if(badge){
+      badge.setAttribute('class', isActive?'badge status-ok':'badge status-idle');
+    }
+  });
+
+  // connectors: active up to & including the link INTO the active node; idle beyond
+  connectorPairs.forEach(([a,b,activeId,idleId],ci)=>{
+    const ae = document.getElementById(activeId);
+    const ie = document.getElementById(idleId);
+    const fromIdx = nodeOrder.indexOf(a.replace('node-',''));
+    const toIdx = nodeOrder.indexOf(b.replace('node-',''));
+    let showActive = false;
+    if(index!==null){
+      // link is "active" if it leads into or through the active node
+      showActive = (toIdx <= index+1 && fromIdx <= index) && toIdx <= index+1;
+      // specifically: show active connector if the destination node index <= activeIndex+1 and origin <= activeIndex
+      // simpler: active if fromIdx <= index && toIdx <= index+1 and toIdx<=nodeOrder.length-1
+      showActive = (fromIdx <= index && toIdx <= index+1);
+    }
+    if(showActive){ ae.style.display='block'; ie.style.display='none'; }
+    else { ae.style.display='none'; ie.style.display='block'; }
+  });
+
+  updateFlowDots();
+  renderList();
+  if(index!==null){
+    const s=stages[index];
+    pageTitle.textContent = s.title;
+    canvasTitle.textContent = s.title;
+  }else{
+    pageTitle.textContent = 'Dry-Grind Ethanol Plant';
+    canvasTitle.textContent = 'Dry-Grind Ethanol Plant';
+  }
+}
+
+function updateFlowDots(){
+  // Animate dots only on connectors up to the active stage
+  flowDots.forEach(dot=>{
+    const connId = dot.dataset.conn;
+    const pair = connectorPairs.find(p=>p[2]===connId);
+    if(!pair){ dot.style.opacity='0'; return; }
+    const fromIdx = nodeOrder.indexOf(pair[0].replace('node-',''));
+    const toIdx = nodeOrder.indexOf(pair[1].replace('node-',''));
+    let show=false;
+    if(activeIndex!==null && fromIdx <= activeIndex && toIdx <= activeIndex+1){
+      show = true;
+    }
+    dot.style.opacity = show?'1':'0';
+  });
+}
+
+function renderList(){
+  stageList.innerHTML='';
+  stages.forEach((s,i)=>{
+    const card=document.createElement('div');
+    card.className='card'+(i===activeIndex?' active':'');
+    card.innerHTML=`
+      <div class="card-thumb">${s.icon}</div>
+      <div class="card-body">
+        <div class="card-name">${s.title}</div>
+        <div class="card-desc">${s.desc}</div>
+      </div>
+      <div class="card-meta"><span>Step ${i+1} of ${stages.length}</span></div>
+    `;
+    card.onclick=()=>{setActive(i);};
+    stageList.appendChild(card);
+  });
+}
+
+// Hover tooltip
+svg.addEventListener('mousemove',(e)=>{
+  const pt = svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+  const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+  let hover=null;
+  nodeOrder.forEach(id=>{
+    const n=document.getElementById('node-'+id);
+    if(!n) return;
+    const bb=n.getBBox();
+    if(p.x>=bb.x&&p.x<=bb.x+bb.width&&p.y>=bb.y&&p.y<=bb.y+bb.height) hover=id;
+  });
+  if(hover){
+    const s=stages.find(x=>x.id===hover);
+    tip.innerHTML = `<b>${s.icon} ${s.title}</b>${s.desc}`;
+    tip.classList.add('open');
+    tip.style.left = (e.clientX+14)+'px';
+    tip.style.top = (e.clientY+14)+'px';
+  }else{
+    tip.classList.remove('open');
+  }
+});
+svg.addEventListener('mouseleave',()=>tip.classList.remove('open'));
+
+// Click to select
+svg.addEventListener('click',(e)=>{
+  const pt = svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+  const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+  let hit=null;
+  nodeOrder.forEach(id=>{
+    const n=document.getElementById('node-'+id);
+    if(!n) return;
+    const bb=n.getBBox();
+    if(p.x>=bb.x&&p.x<=bb.x+bb.width&&p.y>=bb.y&&p.y<=bb.y+bb.height) hit=id;
+  });
+  if(hit!==null){
+    setActive(nodeOrder.indexOf(hit));
+  }
+});
+
+// Auto animation
+let autoTimer;
+function startAuto(){
+  if(running) return;
+  running=true; btnAuto.classList.add('primary'); btnAuto.textContent='Running';
+  let i=-1;
+  function next(){
+    if(!running) return;
+    i++;
+    if(i>=nodeOrder.length){ stopAuto(); return; }
+    setActive(i);
+    autoTimer=setTimeout(next,850);
+  }
+  next();
+}
+function stopAuto(){
+  running=false; btnAuto.classList.remove('primary'); btnAuto.textContent='Auto';
+  clearTimeout(autoTimer);
+}
+btnAuto.addEventListener('click',()=>running?stopAuto():startAuto());
+btnReset.addEventListener('click',()=>{stopAuto();setActive(null);});
+
+// Export PNG
+document.getElementById('btnExport').addEventListener('click',()=>{
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const blob = new Blob([svgData],{type:'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload=()=>{
+    const c=document.createElement('canvas');
+    c.width=1100;c.height=700;
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,1100,700);
+    ctx.drawImage(img,0,0);
+    const a=document.createElement('a');
+    a.download='ethanol-factory.png';
+    a.href=c.toDataURL('image/png');
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  img.src=url;
+});
+
+init();
+</script>
+</body>
+</html>

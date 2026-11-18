@@ -1,0 +1,44 @@
+{
+  "status": "implemented-locally-awaiting-user-polish",
+  "stack": ["React", "Three.js", "Motion"],
+  "sceneScope": "Illustrative workflows, not engineering or political simulations",
+  "plant": {
+    "authoritativeState": "selected workstream plus section scroll progress; phone uses a layer slider",
+    "fixed": ["camera", "site slab", "root rotation"],
+    "groups": [
+      "civil pads and site elements",
+      "mechanical equipment and supports",
+      "abstract documentation"
+    ],
+    "behaviour": "selected group separates with progress; nonselected groups settle at assembly height; Overview coordinates all groups",
+    "continuity": "existing group transforms interpolate to new targets without scene recreation or scroll reset",
+    "reference": "user-provided generated plant image, used for palette/composition only"
+  },
+  "landsafe": {
+    "states": ["Records", "Field verification", "Review report"],
+    "geometry": "authored fictional extruded parcel, fixed survey markers, comparison line, textured generic paper panels",
+    "grounding": "source-backed report categories and document workflow; no client case reproduced"
+  },
+  "research": {
+    "states": ["Research", "Synthesize", "Brief"],
+    "geometry": "authored tabletop, separated notes, paper stacks, folder with bound-edge cover pivot",
+    "grounding": "confirmed research/briefing responsibilities; separate nomination portfolio summary"
+  },
+  "lighting": {
+    "owner": "world-space studio key and fill",
+    "receivers": ["terrain", "desk", "paper", "equipment"],
+    "finish": "matte sage and cream; subdued brass; existing plant silver",
+    "animation": "no moving lights, fixed exposure and camera"
+  },
+  "accessibility": [
+    "HTML content independent of WebGL",
+    "native keyboard buttons",
+    "selected-state captions",
+    "reduced-motion immediate state",
+    "SVG fallback for both new scenes",
+    "static plant poster with fallback notice"
+  ],
+  "privacy": "Only manually composed anonymized summaries and generic texture labels shipped. Originals remain outside public assets.",
+  "rendering": "near-viewport lazy loading; request frames during state changes; stop once settled, hidden, or off-screen",
+  "assets": "custom geometry and existing dependencies; no third-party models or source-document textures"
+}

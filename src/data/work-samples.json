@@ -1,0 +1,28 @@
+{
+  "land": {
+    "label": "ANONYMIZED WORK SAMPLE",
+    "title": "From scattered records to a decision-ready report.",
+    "intro": "The property-review work brings documentary checks, site observations, and recommendations into one structured report. This summary recreates the method without reproducing a client case.",
+    "steps": [
+      {"title": "Trace the records", "body": "Organize the ownership chain and supporting transaction records; review encumbrance and release documentation alongside revenue records."},
+      {"title": "Compare the evidence", "body": "Separate legal and regulatory checks from physical verification, so records, boundary observations, access, and usable extent can be reviewed together."},
+      {"title": "Make the next action clear", "body": "Bring findings into a category-based review matrix, supporting-document index, and recommendations for further verification or professional review."}
+    ],
+    "deliverable": "A structured report covering title flow, encumbrance history, compliance, physical verification, market context, recommendations, and supporting records.",
+    "method": "Supporting workflow documents define document sourcing, field and office responsibilities, missing-record follow-up, risk escalation, quality review, and report delivery. Monitoring is documented as a separate service workflow.",
+    "note": "Recreated process summary. Original records, locations, measurements, values, scores, and client findings are withheld."
+  },
+  "nomination": {
+    "label": "ANONYMIZED WORK SAMPLE",
+    "title": "Build a coherent portfolio from a varied public record.",
+    "intro": "I prepared a portfolio for formal nomination proceedings. The work involved bringing biographical material, professional experience, public-service work, and supporting records into a structured document.",
+    "steps": [
+      {"title": "Organize the material", "body": "Group the profile into clear themes, including public service, policy work, professional experience, and education."},
+      {"title": "Build a navigable narrative", "body": "Use a contents structure, section hierarchy, and supporting material to make a wide-ranging record easier to review."},
+      {"title": "Prepare the submission", "body": "Compile the portfolio for the formal nomination process. My contribution was preparing the document; the subject's achievements belong to the subject."}
+    ],
+    "deliverable": "A structured nomination portfolio bringing profile information and supporting material into a single review document.",
+    "method": "This example demonstrates information organization and document preparation. Constituency analysis and leadership briefings are separate responsibilities described in the experience section.",
+    "note": "Recreated process summary. Names, photographs, personal history, identifying quotations, and original pages are withheld."
+  }
+}

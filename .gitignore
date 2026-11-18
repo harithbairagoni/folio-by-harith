@@ -2,6 +2,10 @@ node_modules/
 build/
 dist/
 coverage/
+tmp/
+output/
+scrollcraft/builds/*/*verification*/
+scrollcraft/builds/*/*audit*/
 .DS_Store
 *.log
 .env*

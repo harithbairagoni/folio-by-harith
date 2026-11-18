@@ -1,0 +1,309 @@
+{
+  "version": 1,
+  "me": {
+    "name": "Harith Bairagoni",
+    "target_role": "Founder’s Office / Chief of Staff",
+    "domain": "Startups, preferably Series A or Series B; valuation is a consideration.",
+    "target_companies": [],
+    "line": "I like being thrown into problems without an instruction manual.",
+    "bio60": "From mechanical engineering and plant operations to field research and building products, I like making sense of unfamiliar problems. I co-founded LandSafe and built TidyRow and ColdConnect to simplify spreadsheet cleanup and managing professional connections. I’m looking to bring that approach to a Founder’s Office or Chief of Staff role at a startup.",
+    "unusual": "",
+    "location": "",
+    "buckets": [
+      "Products",
+      "Operations",
+      "Strategy & Growth"
+    ],
+    "work_intro": "Across products, operations, and strategy & growth, I turn unfamiliar problems into practical next steps.",
+    "photos": {
+      "headshot": "assets/me/headshot.jpg",
+      "candids": []
+    }
+  },
+  "experience": [
+    {
+      "company": "LANDSAFE REAL ESTATE TECHNOLOGY PVT.LTD",
+      "role": "Director of Operations & Co-Founder",
+      "start": "Aug 2025",
+      "end": "present",
+      "team_line": "Property verification connecting field operations, GIS, and legal due diligence."
+    },
+    {
+      "company": "VIVEK BIO PRODUCTS PVT.LTD",
+      "role": "Assistant Project Manager",
+      "start": "Jul 2024",
+      "end": "Jul 2025",
+      "team_line": "Engineering, procurement, and contractor workstreams for a ₹152 Cr ethanol facility."
+    },
+    {
+      "company": "RAJNEETHI STRATEGIES (RASTRA)",
+      "role": "Political Analyst | Telangana Assembly Elections 2023",
+      "start": "Jun 2023",
+      "end": "Jul 2024",
+      "team_line": "Campaign research, booth-level analysis, and executive briefing notes."
+    },
+    {
+      "company": "TATA SIKORSKY AEROSPACE LTD",
+      "role": "Project Intern",
+      "start": "Feb 2023",
+      "end": "Apr 2023",
+      "team_line": "Machining parameter optimization and validation trials."
+    }
+  ],
+  "projects": [
+    {
+      "id": "coldconnect",
+      "title": "ColdConnect",
+      "context": "side",
+      "problem": "Keep track of professional connections, prepare relevant questions before meetings, maintain connections through LinkedIn and Gmail follow-ups, and schedule future meetings.",
+      "did": "Built ColdConnect solo to address my own need to manage professional connections, prepare questions, follow up through LinkedIn and Gmail, and schedule next meetings. Tested the project myself.",
+      "role": "Solo builder",
+      "team_size": 1,
+      "number": "",
+      "approx": false,
+      "proof_url": "https://github.com/harithbairagoni/coldconnect",
+      "tags": [
+        "Conversation preparation",
+        "Pitch practice",
+        "Follow-up"
+      ],
+      "bucket": "Products",
+      "brief": "Build a tool to track connections, prepare questions, and plan follow-ups.",
+      "strength": 3,
+      "hero": true,
+      "cover": "",
+      "shots": [],
+      "writeup": ""
+    },
+    {
+      "id": "tidyrow",
+      "title": "TidyRow",
+      "context": "college",
+      "problem": "Turn messy spreadsheets into structured data for data analysts who are not tech savvy, including data formatted for HubSpot and Salesforce.",
+      "did": "Built TidyRow solo, including one-click data formatting for HubSpot and Salesforce. Prioritized ease of use for less technical data analysts. Tested it with real company sales and performance metrics files and included a demo file in the platform. The college project helped me develop how I think about solving a problem.",
+      "role": "Solo builder",
+      "team_size": 1,
+      "number": "",
+      "approx": false,
+      "proof_url": "",
+      "tags": [
+        "Spreadsheet cleanup",
+        "Structured data",
+        "HubSpot formatting",
+        "Salesforce formatting"
+      ],
+      "bucket": "Products",
+      "brief": "Build spreadsheet cleanup with one-click formatting for HubSpot and Salesforce.",
+      "strength": 2,
+      "hero": true,
+      "cover": "",
+      "shots": [],
+      "writeup": ""
+    },
+    {
+      "id": "landsafe-growth",
+      "title": "LandSafe Customer Acquisition & Service Delivery",
+      "context": "work",
+      "problem": "Acquire customers and deliver property verification services for an early-stage venture.",
+      "did": "Led customer acquisition, sales, and end-to-end service delivery at LandSafe.",
+      "role": "Director of Operations & Co-Founder",
+      "team_size": null,
+      "number": "Generated ₹4 lakh in revenue at an early stage",
+      "approx": false,
+      "proof_url": "",
+      "tags": [
+        "Customer acquisition",
+        "Sales",
+        "Real estate",
+        "Service delivery"
+      ],
+      "bucket": "Strategy & Growth",
+      "brief": "Generate ₹4 lakh in revenue through customer acquisition, sales, and service delivery.",
+      "strength": 4,
+      "hero": false,
+      "cover": "",
+      "shots": [],
+      "writeup": ""
+    },
+    {
+      "id": "telangana-campaign-research",
+      "title": "Telangana Campaign Research",
+      "context": "work",
+      "problem": "Provide constituency research and briefing material to inform campaign strategy.",
+      "did": "Synthesized intelligence from 15 constituencies, performed booth-level voter analysis, and developed executive briefing notes for ministers and MLCs.",
+      "role": "Political Analyst | Telangana Assembly Elections 2023",
+      "team_size": null,
+      "number": "15 constituencies",
+      "approx": false,
+      "proof_url": "",
+      "tags": [
+        "Market research",
+        "Campaign strategy",
+        "Voter analysis",
+        "Executive briefings"
+      ],
+      "bucket": "Strategy & Growth",
+      "brief": "Synthesize research from 15 constituencies to inform campaign strategy and executive briefings.",
+      "strength": 3,
+      "hero": false,
+      "cover": "",
+      "shots": [],
+      "writeup": ""
+    },
+    {
+      "id": "carbide-tool-life",
+      "title": "Carbide Tool-Life Optimization Project",
+      "context": "internship",
+      "problem": "Reduce machining expenditure and improve cutting-tool life.",
+      "did": "Optimized machining parameters using Taguchi Analysis and executed validation trials.",
+      "role": "Project Intern",
+      "team_size": null,
+      "number": "Improved cutting-tool life by 30%; reduced manufacturing expenditure by ₹21.8 lakh; increased output from 20 to 25 components per tool cycle.",
+      "approx": false,
+      "proof_url": "",
+      "tags": [
+        "Process optimization",
+        "Taguchi Analysis",
+        "Manufacturing"
+      ],
+      "bucket": "Operations",
+      "brief": "Improve cutting-tool life by 30% through machining parameter optimization.",
+      "strength": 4,
+      "hero": false,
+      "cover": "",
+      "shots": [],
+      "writeup": ""
+    },
+    {
+      "id": "mlc-nomination",
+      "title": "Legislative Council Nomination Profile Development",
+      "context": "work",
+      "problem": "Prepare an MLC candidate profile and nomination dossier aligned with statutory requirements.",
+      "did": "Prepared the MLC portfolio that was sent to the Legislative Council for the formal proceedings of his nomination and approval. Structured life-event documentation and supporting records for the submission.",
+      "role": "Portfolio preparation",
+      "team_size": null,
+      "number": "",
+      "approx": false,
+      "proof_url": "",
+      "tags": [
+        "Research",
+        "Documentation",
+        "Public affairs"
+      ],
+      "bucket": "Operations",
+      "brief": "Prepare an MLC portfolio for formal Legislative Council nomination proceedings.",
+      "strength": 2,
+      "hero": false,
+      "cover": "",
+      "shots": [],
+      "writeup": "writeups/mlc-nomination.md"
+    },
+    {
+      "id": "landsafe-due-diligence",
+      "title": "LandSafe Property Due Diligence",
+      "context": "work",
+      "problem": "Bring documentary checks and physical observations into a structured property review.",
+      "did": "Coordinated field, GIS, and legal verification workstreams. Supplied a property-review work sample showing title flow, encumbrance history, compliance, physical verification, a review matrix, and recommendations.",
+      "role": "Director of Operations & Co-Founder",
+      "team_size": null,
+      "number": "",
+      "approx": false,
+      "proof_url": "",
+      "tags": [
+        "Due diligence",
+        "Workflow design",
+        "Evidence synthesis",
+        "Real estate"
+      ],
+      "bucket": "Operations",
+      "brief": "Bring records, site observations, and next actions into a structured property review.",
+      "strength": 2,
+      "hero": false,
+      "cover": "",
+      "shots": [],
+      "writeup": "writeups/landsafe-due-diligence.md"
+    }
+  ],
+  "education": [
+    {
+      "school": "Masters’ Union",
+      "degree": "PGP in Technology & Business Management",
+      "year": "2026–present"
+    },
+    {
+      "school": "Vasavi College of Engineering",
+      "degree": "BE Mechanical Engineering",
+      "year": "2019–2023"
+    },
+    {
+      "school": "Narayana Junior College",
+      "degree": "State Board MPC Class XII",
+      "year": "2016–2019"
+    },
+    {
+      "school": "All Saints High School",
+      "degree": "SSC Board Class X",
+      "year": ""
+    }
+  ],
+  "wins": [
+    {
+      "what": "Masters’ Union Startup Weekend Challenge",
+      "number": "1st Position; ₹5,000 prize",
+      "year": ""
+    },
+    {
+      "what": "Bronze Medal in Mechanical Engineering Year I",
+      "number": "Institute Rank 3 among 150 students",
+      "year": ""
+    },
+    {
+      "what": "Co-founded LandSafe and executed property verification",
+      "number": "20+ properties",
+      "year": ""
+    }
+  ],
+  "testimonials": [],
+  "outside": [
+    {
+      "what": "Table tennis",
+      "detail": "Top-3 Finalist, Inter-School Table Tennis Tournament involving 15+ schools",
+      "link": "",
+      "photos": []
+    },
+    {
+      "what": "Badminton",
+      "detail": "Winner, Intra-School Badminton Championship at All Saints High School",
+      "link": "",
+      "photos": []
+    },
+    {
+      "what": "Science exhibition",
+      "detail": "Winner, Inter-House Science Exhibition at All Saints High School",
+      "link": "",
+      "photos": []
+    },
+    {
+      "what": "TCS IT Wiz",
+      "detail": "Participant, National Quiz Competition",
+      "link": "",
+      "photos": []
+    },
+    {
+      "what": "AIESEC in Hyderabad",
+      "detail": "International exchange operations and applicant acquisition, Aug 2024–Sep 2024",
+      "link": "",
+      "photos": []
+    }
+  ],
+  "logos": {
+    "worked_with": [],
+    "tools": []
+  },
+  "contact": {
+    "email": "harith.bairagoni2027@mastersunion.org",
+    "linkedin": "https://www.linkedin.com/in/harith-bairagoni-5a100b210/",
+    "resume_url": "public/resume/harith-focos-original.pdf",
+    "calendar_url": ""
+  }
+}

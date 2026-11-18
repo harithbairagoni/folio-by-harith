@@ -1,0 +1,14 @@
+{
+  "name": "Coordination lens",
+  "representation": "illustrative assembly, not engineering simulation",
+  "construction": "custom Three.js geometry, no imported kit or scientific claims",
+  "scale": "conceptual model units; not an engineering dimension drawing",
+  "groups": ["civil foundation and pads", "six vessels, distillation structure, access ladder and connected piping", "documentation tray"],
+  "materials": ["matte stone", "brushed silver", "sage steel", "brass piping", "warm paper"],
+  "lighting": "warm directional key from upper left, cool fill and room environment, shadow receiver under slab",
+  "motion": "desktop scroll assembles separated groups; reduced motion and phones start assembled; static after settling and parked offscreen",
+  "controls": "select or deselect Civil works, Mechanical, or Clearances to emphasize its group and update the explanation",
+  "fallback": "poster captured from the final rendered scene",
+  "renderer": {"antialias": true, "maxPixelRatio": 1.6, "preserveDrawingBuffer": false},
+  "source": "src/components/PlantScene.tsx"
+}
