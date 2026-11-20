@@ -424,7 +424,7 @@ body {
 .work-introduction h2 span {
   color: #866749;
 }
-.work-introduction > p:last-child {
+.work-introduction > p:last-of-type {
   position: absolute;
   right: 0;
   bottom: 3px;
@@ -1442,7 +1442,7 @@ body {
   .hero-description {
     max-width: 310px;
   }
-  .work-introduction > p:last-child {
+  .work-introduction > p:last-of-type {
     position: static;
     margin-top: 25px;
   }
@@ -1842,7 +1842,7 @@ body {
     font-size: 39px;
     line-height: 1.15;
   }
-  .work-introduction > p:last-child {
+  .work-introduction > p:last-of-type {
     font-size: 13px;
     line-height: 1.7;
     margin-top: 22px;

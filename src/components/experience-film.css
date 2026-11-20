@@ -1,0 +1,64 @@
+.story-art.experience-film {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0;
+  background: #15271c;
+  color: #ffefd2;
+}
+.story-art.film-land { background: #243031; }
+.story-art.film-research { background: #c7d1be; color: #293d32; }
+.film-screen { position: relative; flex: 1; min-height: 0; overflow: clip; }
+.film-camera { position: absolute; inset: 0; }
+.film-frame { position: absolute; inset: 0; pointer-events: none; }
+.film-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.film-scan { position: absolute; inset: 0; }
+.film-scan::after {
+  content: "";
+  position: absolute;
+  inset: -2px 0 auto;
+  height: 5px;
+  background: linear-gradient(90deg, transparent 6%, #f7d590 48%, transparent 94%);
+  box-shadow: 0 0 22px #f1b76870;
+}
+.film-ethanol .film-scan::after { transform: rotate(4deg); }
+.film-land .film-scan::after {
+  inset: 0 auto 0 0;
+  width: 4px;
+  height: auto;
+  background: linear-gradient(transparent 8%, #f7d590 54%, transparent 92%);
+  transform: rotate(6deg);
+}
+.film-caption {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 3px 12px 3px 16px;
+  border-top: 1px solid currentColor;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.film-caption button {
+  border: 0;
+  border-radius: 5px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  padding: 7px 6px;
+  min-height: 44px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.film-caption button:focus-visible { outline: 2px solid #b47d42; outline-offset: -2px; }
+.film-caption button:hover { background: #91846433; }
+.experience-visual { min-width: 0; }
+.film-caption-ethanol { border-color: #e3c48945; }
+.film-caption-land, .film-caption-research { border-color: #60725545; }
+@media (max-width: 540px) {
+  .story-art.experience-film { height: clamp(220px, 36svh, 300px); }
+  .film-caption { padding-inline: 8px; gap: 4px; }
+}

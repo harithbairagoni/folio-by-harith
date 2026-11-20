@@ -5,23 +5,8 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { batchScene } from "./batch-scene";
 
 /** Illustrative assembly, not a process simulation or an as-built plant model. */
-export default function PlantScene({
-  progress,
-  selected,
-  reduced,
-}: {
-  progress: MotionValue<number>;
-  selected: number | null;
-  reduced: boolean;
-}) {
+export default function PlantScene({ phase }: { phase: MotionValue<number> }) {
   const host = useRef<HTMLDivElement>(null);
-  const selection = useRef(selected);
-  const update = useRef<(() => void) | null>(null);
-  useEffect(() => {
-    selection.current = selected;
-    update.current?.();
-  }, [selected]);
-
   useEffect(() => {
     const container = host.current;
     if (!container) return;
@@ -337,56 +322,47 @@ export default function PlantScene({
     ground.castShadow = false;
 
     [root, civil, mechanical, clearances].forEach(group => batchScene(group, geo));
-    let frame = 0,
-      visible = true,
-      current = progress.get(),
-      target = current;
-    let lastTime = 0;
+    let frame = 0;
+    let visible = true;
+    let compactCamera = false;
+    const groups = [civil, mechanical, clearances];
+    const lifts = [0.24, 1.12, 1.18];
+    const initialLifts = [0.05, 0.45, 0.67];
+    const focus = new THREE.Vector3();
+    const color = new THREE.Color();
+    clearances.position.z = 3.3;
+
     const draw = () => {
       frame = 0;
       if (!visible || document.hidden) return;
-      const now = performance.now();
-      const blend = reduced ? 1 : 1 - Math.exp(-Math.min(now - lastTime || 16, 150) / 38);
-      lastTime = now;
-      current = target;
-      const assembled = THREE.MathUtils.smoothstep(current, 0.03, 0.88);
-      const groups = [civil, mechanical, clearances];
-      const lift = [0.9, 1.8, 2.5];
-      let moving = current !== target;
+      const position = phase.get();
+      const overview = 1 - THREE.MathUtils.smoothstep(position, 0, 0.75);
+      let emphasis = 0;
       groups.forEach((group, i) => {
-        const y = selection.current === null
-          ? (reduced ? 0 : (1 - assembled) * lift[i])
-          : selection.current === i ? (reduced ? 0.4 : assembled * lift[i]) : 0;
-        group.position.y = THREE.MathUtils.lerp(group.position.y, y, blend);
-        if (Math.abs(group.position.y - y) < 0.005) group.position.y = y;
-        else moving = true;
+        const weight = 1 - THREE.MathUtils.smoothstep(Math.abs(position - (i + 1)), 0, 0.86);
+        emphasis += weight;
+        group.position.y = overview * initialLifts[i] + weight * lifts[i];
       });
-      clearances.position.z = 3.3;
-      root.rotation.y = -0.18;
-      mats.forEach((materials, i) =>
-        materials.forEach((m) => {
-          const original = m.userData.originalColor as THREE.Color;
-          const color = original.clone().multiplyScalar(selection.current !== null && selection.current !== i ? 0.55 : 1);
-          if (Math.abs(m.color.r - color.r) + Math.abs(m.color.g - color.g) + Math.abs(m.color.b - color.b) > 0.002) moving = true;
-          m.color.lerp(color, blend);
-        }),
-      );
+      mats.forEach((materials, i) => {
+        const weight = 1 - THREE.MathUtils.smoothstep(Math.abs(position - (i + 1)), 0, 0.86);
+        for (const material of materials) {
+          color.copy(material.userData.originalColor).multiplyScalar(1 - 0.44 * (emphasis - weight));
+          material.color.copy(color);
+        }
+      });
+      root.rotation.y = -0.24 + 0.10 * THREE.MathUtils.smoothstep(position, 0, 4);
+      const framing = (compactCamera ? 1.14 : 1) * (1.03 - 0.08 * emphasis);
+      camera.position.set(12, 10, 14).multiplyScalar(framing);
+      camera.lookAt(focus.set(0, 1.05 + groups[1].position.y * 0.24, 0));
       renderer.render(scene, camera);
       container.dataset.drawCalls = String(renderer.info.render.calls);
       container.dataset.ready = "true";
-      container.dataset.scVerifyState = `${civil.position.y.toFixed(3)}:${mechanical.position.y.toFixed(3)}:${clearances.position.y.toFixed(3)}:${selection.current}`;
-      container.dataset.settled = String(!moving);
-      if (moving) frame = requestAnimationFrame(draw);
+      container.dataset.scVerifyState = groups.map(group => group.position.y.toFixed(3)).join(":");
     };
     const schedule = () => {
-      if (!frame && visible && !document.hidden)
-        frame = requestAnimationFrame(draw);
+      if (!frame && visible && !document.hidden) frame = requestAnimationFrame(draw);
     };
-    update.current = schedule;
-    const unsubscribe = progress.on("change", (p) => {
-      target = p;
-      schedule();
-    });
+    const unsubscribe = phase.on("change", schedule);
     const observer = new IntersectionObserver(
       (entries) => {
         visible = entries[0].isIntersecting;
@@ -399,8 +375,7 @@ export default function PlantScene({
       const { width, height } = container.getBoundingClientRect();
       renderer.setSize(width, height);
       camera.aspect = width / Math.max(height, 1);
-      camera.position.set(12, 10, 14).multiplyScalar(width < 430 ? 1.12 : 1);
-      camera.lookAt(0, 1.1, 0);
+      compactCamera = width < 430;
       camera.updateProjectionMatrix();
       schedule();
     });
@@ -416,7 +391,6 @@ export default function PlantScene({
       observer.disconnect();
       resize.disconnect();
       document.removeEventListener("visibilitychange", visibility);
-      update.current = null;
       geo.forEach((g) => g.dispose());
       mats.flat().forEach((m) => m.dispose());
       (ground.material as THREE.Material).dispose();
@@ -425,7 +399,7 @@ export default function PlantScene({
       renderer.dispose();
       renderer.domElement.remove();
     };
-  }, [progress, reduced]);
+  }, [phase]);
   return (
     <div
       ref={host}

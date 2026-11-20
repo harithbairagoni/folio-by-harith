@@ -26,21 +26,36 @@
       "role": "Director of Operations & Co-Founder",
       "start": "Aug 2025",
       "end": "present",
-      "team_line": "Property verification connecting field operations, GIS, and legal due diligence."
+      "team_line": "Property verification connecting field operations, GIS, and legal due diligence.",
+      "shots": [
+        "public/experience/landsafe-records-1664.webp",
+        "public/experience/landsafe-survey-1664.webp",
+        "public/experience/landsafe-report-1664.webp"
+      ]
     },
     {
       "company": "VIVEK BIO PRODUCTS PVT.LTD",
       "role": "Assistant Project Manager",
       "start": "Jul 2024",
       "end": "Jul 2025",
-      "team_line": "Engineering, procurement, and contractor workstreams for a ₹152 Cr ethanol facility."
+      "team_line": "Engineering, procurement, and contractor workstreams for a ₹152 Cr ethanol facility.",
+      "shots": [
+        "public/experience/ethanol-foundations-1664.webp",
+        "public/experience/ethanol-equipment-1664.webp",
+        "public/experience/ethanol-integration-1664.webp"
+      ]
     },
     {
       "company": "RAJNEETHI STRATEGIES (RASTRA)",
       "role": "Political Analyst | Telangana Assembly Elections 2023",
       "start": "Jun 2023",
       "end": "Jul 2024",
-      "team_line": "Campaign research, booth-level analysis, and executive briefing notes."
+      "team_line": "Campaign research, booth-level analysis, and executive briefing notes.",
+      "shots": [
+        "public/experience/rastra-scope-1664.webp",
+        "public/experience/rastra-sources-1664.webp",
+        "public/experience/rastra-brief-1664.webp"
+      ]
     },
     {
       "company": "TATA SIKORSKY AEROSPACE LTD",

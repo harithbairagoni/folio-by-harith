@@ -141,6 +141,7 @@ try {
       await page.keyboard.press("Escape");
       await page.locator("#mobile-navigation").waitFor({ state: "detached" });
     }
+    await page.locator(".sequence-ethanol").getByRole("button", { name: "View workflow diagram" }).click();
     await page.getByRole("button", { name: "Mechanical", exact: true }).click();
     await page.locator(".sequence-ethanol .plant-art[data-track='1']").first().waitFor();
     await page.screenshot({ path: `${output}/${name}-selected-workstream.png` });
@@ -165,7 +166,7 @@ try {
   });
   const page = await context.newPage();
   await page.goto(baseURL, { waitUntil: "networkidle" });
-  await page.locator(".sequence-ethanol").scrollIntoViewIfNeeded();
+  await page.locator(".sequence-ethanol").getByRole("button", { name: "View workflow diagram" }).click();
   await page.waitForTimeout(400);
   await page.screenshot({
     path: `output/no-webgl.png`.replace("output/", `${output}/`),

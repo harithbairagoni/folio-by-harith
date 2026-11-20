@@ -379,6 +379,7 @@ function SelectedWork() {
           <br />
           The same instinct to make the next step simpler.
         </p>
+        <a className="underlined-link" href="#experience">See my experience in motion <ArrowDownRight size={17} /></a>
       </div>
       <article className="project-spread tidy-spread" data-sc-act="flow">
         <div className="project-copy">
