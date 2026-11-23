@@ -1,35 +1,46 @@
 import { Fragment, useRef } from "react";
-import { motion, useInView, useTransform, type MotionValue } from "motion/react";
+import { motion, useInView, useSpring, useTransform, type MotionValue } from "motion/react";
 import portfolio from "../../portfolio.json";
 import type { Kind } from "../data/experience-beats";
 import "./experience-film.css";
 
-type Shot = { alt: string; reveal: [number, number] };
+type Shot = { source: number; alt: string; reveal: [number, number] };
 
-const stories: Record<Kind, { company: string; shots: Shot[] }> = {
+const foundations = "Exploded concrete foundations and installation pads";
+const equipment = "Steel tanks and a distillation column aligned above foundation pads";
+const facility = "Connected ethanol equipment and illustrative clearance papers";
+
+const stories: Record<Kind, { company: string; shots: Shot[]; zoom: number[]; focus: string[] }> = {
   ethanol: {
     company: "VIVEK BIO PRODUCTS PVT.LTD",
     shots: [
-      { alt: "Exploded concrete foundations and installation pads on an illustrative site grid", reveal: [0, 0] },
-      { alt: "Steel tanks and a distillation column aligned above the foundation pads", reveal: [1.18, 1.94] },
-      { alt: "Connected ethanol equipment and a tray of illustrative clearance papers", reveal: [2.23, 2.94] },
+      { source: 2, alt: facility, reveal: [0, 0] },
+      { source: 0, alt: foundations, reveal: [.13, .94] },
+      { source: 1, alt: equipment, reveal: [1.13, 1.94] },
+      { source: 2, alt: facility, reveal: [2.13, 2.94] },
     ],
+    zoom: [1, 1.035, 1.055, 1.13, 1],
+    focus: ["50% 50%", "50% 65%", "52% 48%", "29% 76%", "50% 50%"],
   },
   land: {
     company: "LANDSAFE REAL ESTATE TECHNOLOGY PVT.LTD",
     shots: [
-      { alt: "Fictional parcel with scattered paperwork and overlapping boundary lines", reveal: [0, 0] },
-      { alt: "Survey instrument projecting a scan over a fictional field boundary", reveal: [.12, .94] },
-      { alt: "Layers of field evidence and report sheets above the parcel", reveal: [1.86, 2.94] },
+      { source: 0, alt: "Fictional parcel with scattered paperwork and overlapping boundary lines", reveal: [0, 0] },
+      { source: 1, alt: "Survey instrument projecting a scan over a fictional field boundary", reveal: [.13, .94] },
+      { source: 2, alt: "Field evidence and report sheets layered above the parcel", reveal: [1.13, 1.94] },
     ],
+    zoom: [1, 1.055, 1, 1.09],
+    focus: ["50% 55%", "65% 59%", "50% 50%", "50% 24%"],
   },
   research: {
     company: "RAJNEETHI STRATEGIES (RASTRA)",
     shots: [
-      { alt: "Illustrated Telangana relief map with abstract markers", reveal: [0, 0] },
-      { alt: "Illustrative arcs connecting research inputs over the map", reveal: [.16, .96] },
-      { alt: "Stacks of sample briefing documents alongside the illustrated map", reveal: [2.06, 2.94] },
+      { source: 0, alt: "Illustrated Telangana relief map with abstract markers", reveal: [0, 0] },
+      { source: 1, alt: "Illustrative arcs connecting research inputs over the map", reveal: [.13, .94] },
+      { source: 2, alt: "Sample briefing documents alongside the illustrated map", reveal: [1.13, 1.94] },
     ],
+    zoom: [1, 1.05, 1, 1.075],
+    focus: ["50% 57%", "50% 57%", "50% 50%", "67% 32%"],
   },
 };
 
@@ -37,21 +48,25 @@ function FilmFrame({ file, shot, kind, phase, still, beat }: {
   file: string; shot: Shot; kind: Kind; phase: MotionValue<number>; still: boolean; beat: number;
 }) {
   const [start, end] = shot.reveal;
-  const amount = useTransform(phase, [start, end || 1], [0, 1]);
-  const clipPath = useTransform(amount, progress => {
-    if (progress >= .999) return "inset(0)";
-    if (progress <= .001) return "inset(0 0 100% 0)";
-    if (kind === "research") return `ellipse(${progress * 79}% ${progress * 89}% at 50% 54%)`;
-    const edge = 110 * (1 - progress);
-    if (kind === "ethanol") return `polygon(0 ${edge - 10}%, 100% ${edge}%, 100% 100%, 0 100%)`;
-    return `polygon(0 0, ${110 - edge}% 0, ${100 - edge}% 100%, 0 100%)`;
+  const amount = useTransform(phase, [start, end || 1], [0, 1], {
+    ease: progress => progress * progress * (3 - 2 * progress),
   });
-  const opacity = useTransform(amount, [0, .12, 1], [0, .92, 1]);
-  const edge = useTransform(amount, [0, 1], kind === "ethanol" ? ["112%", "-12%"] : ["-12%", "112%"]);
-  const beamOpacity = useTransform(amount, [0, .12, .84, 1], [0, .83, .83, 0]);
+  const maskImage = useTransform(amount, progress => {
+    if (progress >= .999) return "none";
+    const edge = 115 * progress - 9;
+    if (kind === "research") {
+      return `radial-gradient(ellipse 80% 92% at 50% 55%, #000 ${edge}%, transparent ${edge + 17}%)`;
+    }
+    const angle = kind === "ethanol" ? 6 - 12 * progress : 103 - 17 * progress;
+    return `linear-gradient(${angle}deg, #000 ${edge}%, transparent ${edge + 17}%)`;
+  });
+  const opacity = useTransform(amount, [0, .18, 1], [0, .85, 1]);
   const src = file.replace(/^public/, "");
   const first = start === end;
-  return <div className="film-frame">
+  return <motion.div className="film-frame" style={first ? undefined : {
+    maskImage: still ? undefined : maskImage,
+    opacity: still ? Number(beat >= (start + end) / 2) : opacity,
+  }}>
     <motion.img
       src={src}
       srcSet={`${src.replace("-1664", "-768")} 768w, ${src} 1664w`}
@@ -61,16 +76,8 @@ function FilmFrame({ file, shot, kind, phase, still, beat }: {
       loading={first ? "lazy" : "eager"}
       decoding="async"
       alt={shot.alt}
-      style={first ? undefined : {
-        clipPath: still ? (beat >= (start + end) / 2 ? "inset(0)" : "inset(0 0 100% 0)") : clipPath,
-        opacity: still ? undefined : opacity,
-      }}
     />
-    {!first && !still && kind !== "research" && <motion.i
-      className="film-scan"
-      style={kind === "land" ? { x: edge, opacity: beamOpacity } : { y: edge, opacity: beamOpacity }}
-    />}
-  </div>;
+  </motion.div>;
 }
 
 export default function ExperienceFilm({ kind, phase, still, beat }: {
@@ -78,15 +85,22 @@ export default function ExperienceFilm({ kind, phase, still, beat }: {
 }) {
   const ref = useRef<HTMLElement>(null);
   const nearby = useInView(ref, { once: true, margin: "500px" });
-  const { company, shots } = stories[kind];
+  const { company, shots, zoom, focus } = stories[kind];
   const files = portfolio.experience.find(item => item.company === company)!.shots!;
-  const scale = useTransform(phase, [0, 1, 2, 3, 4], [1, 1.055, 1.009, 1.043, 1.015]);
+  const playhead = useSpring(phase, { stiffness: 550, damping: 47, restDelta: .002 });
+  const stops = zoom.map((_, index) => index);
+  const scale = useTransform(playhead, stops, zoom);
+  const transformOrigin = useTransform(playhead, stops, focus);
   const shotIndex = shots.reduce((index, shot, i) => beat >= (shot.reveal[0] + shot.reveal[1]) / 2 ? i : index, 0);
   return <figure ref={ref} className={`story-art experience-film film-${kind}`}>
     <div className="film-screen" role="img" aria-label={shots[shotIndex].alt}>
-      <motion.div className="film-camera" aria-hidden="true" style={{ scale: still ? 1 : scale }}>
-        {shots.map((shot, index) => (index === 0 || nearby) && <Fragment key={files[index]}><FilmFrame file={files[index]} shot={shot} kind={kind} phase={phase} still={still} beat={beat} /></Fragment>)}
-      </motion.div>
+      <div className="film-crop" aria-hidden="true">
+        <motion.div className="film-camera" style={still ? undefined : { scale, transformOrigin }}>
+          {shots.map((shot, index) => (index === 0 || nearby) && <Fragment key={index}>
+            <FilmFrame file={files[shot.source]} shot={shot} kind={kind} phase={playhead} still={still} beat={beat} />
+          </Fragment>)}
+        </motion.div>
+      </div>
     </div>
   </figure>;
 }

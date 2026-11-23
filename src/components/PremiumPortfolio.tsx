@@ -698,8 +698,6 @@ export default function PremiumPortfolio() {
         <a
           href="/resume.html"
           className="resume-link"
-          target="_blank"
-          rel="noreferrer"
         >
           Résumé <ArrowUpRight size={13} />
         </a>
@@ -738,7 +736,7 @@ export default function PremiumPortfolio() {
                 <ArrowUpRight size={24} />
               </a>
             ))}
-            <a href="/resume.html" target="_blank" rel="noreferrer">
+            <a href="/resume.html">
               Résumé <ArrowUpRight size={22} />
             </a>
             <a href={`mailto:${portfolio.contact.email}`}>

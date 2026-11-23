@@ -316,7 +316,6 @@ button:active,
   font-size: 11px;
   color: #78563e;
 }
-.resume-formats a,
 .resume-formats button {
   display: flex;
   align-items: center;
@@ -582,27 +581,6 @@ button:active,
   font-size: 13px;
   font-weight: 600;
 }
-.reader-layout {
-  display: flex;
-  border: 1px solid #d3c5ad;
-  border-radius: 30px;
-  background: #e9dfcd;
-  padding: 3px;
-}
-.reader-layout button {
-  border: 0;
-  background: none;
-  border-radius: 25px;
-  padding: 8px 12px;
-  font-size: 10px;
-  min-height: 34px;
-  color: #715d44;
-}
-.reader-layout button[aria-pressed="true"] {
-  background: #fffef5;
-  box-shadow: 0 2px 5px #79623d10;
-  color: #3c4f37;
-}
 .reader-tools {
   display: flex;
   align-items: center;
@@ -622,44 +600,6 @@ button:active,
   min-height: 40px;
   padding: 8px;
   font-size: 10px;
-}
-.ats-reading .resume-section {
-  display: block;
-  margin-top: 28px;
-}
-.ats-reading .resume-section > h2 {
-  font-size: 14px;
-  border-bottom: 1px solid #a8a8a8;
-  padding-bottom: 5px;
-  margin-bottom: 12px;
-}
-.ats-reading .resume-section > h2 > span {
-  background: none;
-  box-shadow: none;
-}
-.ats-reading .resume-document {
-  max-width: 800px;
-}
-.ats-reading .entry-title {
-  display: block;
-}
-.ats-reading .entry-title > span {
-  display: block;
-}
-.ats-reading .entry-role {
-  display: block;
-}
-.ats-reading .entry-role > span {
-  display: block;
-  font-weight: 400;
-}
-.ats-reading .document-header {
-  text-align: left;
-}
-.ats-reading .resume-section p,
-.ats-reading .resume-section li {
-  font-size: 14px;
-  line-height: 1.65;
 }
 .resume-experience ::selection {
   background: #dfbc86;
@@ -774,8 +714,7 @@ button:active,
     margin-top: 12px;
     font-size: 10px;
   }
-  .resume-formats button,
-  .resume-formats a {
+  .resume-formats button {
     font-size: 10px;
   }
   .resume-contents {
@@ -817,14 +756,6 @@ button:active,
   }
   .reader-toolbar > span {
     font-size: 12px;
-  }
-  .reader-layout {
-    order: 3;
-    flex-basis: 100%;
-  }
-  .reader-layout button {
-    flex: 1;
-    font-size: 11px;
   }
   .reader-tools {
     margin-left: auto;
@@ -925,7 +856,6 @@ button:active,
   .resume-formats {
     gap: 12px;
   }
-  .resume-formats a,
   .resume-formats button {
     font-size: 9px;
   }

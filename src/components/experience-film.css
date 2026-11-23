@@ -8,27 +8,23 @@
 }
 .story-art.film-land { background: #243031; }
 .story-art.film-research { background: #c7d1be; color: #293d32; }
-.film-screen { position: relative; flex: 1; min-height: 0; overflow: clip; }
-.film-camera { position: absolute; inset: 0; }
-.film-frame { position: absolute; inset: 0; pointer-events: none; }
-.film-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
-.film-scan { position: absolute; inset: 0; }
-.film-scan::after {
-  content: "";
-  position: absolute;
-  inset: -2px 0 auto;
-  height: 5px;
-  background: linear-gradient(90deg, transparent 6%, #f7d590 48%, transparent 94%);
-  box-shadow: 0 0 22px #f1b76870;
+.film-screen {
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
 }
-.film-ethanol .film-scan::after { transform: rotate(4deg); }
-.film-land .film-scan::after {
-  inset: 0 auto 0 0;
-  width: 4px;
-  height: auto;
-  background: linear-gradient(transparent 8%, #f7d590 54%, transparent 92%);
-  transform: rotate(6deg);
+.film-crop {
+  position: relative;
+  width: min(100%, 152cqh);
+  aspect-ratio: 1.52;
+  overflow: hidden;
 }
+.film-camera, .film-frame { position: absolute; inset: 0; }
+.film-frame { pointer-events: none; }
+/* A centered 1.52:1 crop trims the corner mark from the supplied 1.79:1 art. */
+.film-frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .film-caption {
   position: relative;
   display: flex;

@@ -11,7 +11,6 @@ import {
   ArrowLeft,
   ArrowUpRight,
   BookOpen,
-  FileText,
   Printer,
   RotateCcw,
   X,
@@ -33,6 +32,8 @@ type Section = {
   entries?: Entry[];
   bullets?: string[];
 };
+const resumePdf = "/resume/harith-focos-original.pdf";
+const resumeFilename = "Bairagoni-Harith-Resume.pdf";
 const sections = resume.sections as Section[];
 const slug = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
@@ -231,7 +232,6 @@ export default function ResumePage() {
   const reduced = useReducedMotion();
   const [printing, setPrinting] = useState(!reduced);
   const [readerOpen, setReaderOpen] = useState(false);
-  const [ats, setAts] = useState(false);
   const [scale, setScale] = useState(0.46);
   const dialog = useRef<HTMLDialogElement>(null);
   const outlet = useRef<HTMLDivElement>(null);
@@ -365,31 +365,18 @@ export default function ResumePage() {
           </button>
           <a
             className="resume-action primary"
-            href="/resume/harith-focos-ats.pdf"
-            download="Bairagoni-Harith-Resume-ATS.pdf"
+            href={resumePdf}
+            download={resumeFilename}
           >
-            <ArrowDownToLine size={18} /> Download ATS PDF
+            <ArrowDownToLine size={18} /> Download résumé PDF
           </a>
         </section>
         <p className="resume-state" aria-live="polite">
           {printing
-            ? "Your page is on its way. Reading and downloads are available now."
-            : "Ready when you are. All the details, in your preferred format."}
+            ? "Your page is on its way. You can read or download it now."
+            : "Your résumé is ready to read, print, or download."}
         </p>
         <div className="resume-formats">
-          <a
-            href="/resume/harith-focos-original.pdf"
-            download="Bairagoni-Harith-Original-CV.pdf"
-          >
-            <FileText size={15} /> Original one-page CV{" "}
-            <ArrowUpRight size={13} />
-          </a>
-          <a
-            href="/resume/harith-focos-ats.txt"
-            download="Bairagoni-Harith-Resume.txt"
-          >
-            Plain text <ArrowDownToLine size={14} />
-          </a>
           <button onClick={() => window.print()}>
             Print résumé <Printer size={14} />
           </button>
@@ -428,7 +415,7 @@ export default function ResumePage() {
       </footer>
       <dialog
         ref={dialog}
-        className={`resume-reader ${ats ? "ats-reading" : ""}`}
+        className="resume-reader"
         aria-labelledby="reader-title"
         onClose={() => setReaderOpen(false)}
         onClick={(event) => {
@@ -446,22 +433,14 @@ export default function ResumePage() {
       >
         <div className="reader-toolbar">
           <span id="reader-title">The résumé</span>
-          <div className="reader-layout" aria-label="Reading layout">
-            <button onClick={() => setAts(false)} aria-pressed={!ats}>
-              Original layout
-            </button>
-            <button onClick={() => setAts(true)} aria-pressed={ats}>
-              ATS reading
-            </button>
-          </div>
           <div className="reader-tools">
             <a
-              href="/resume/harith-focos-ats.pdf"
-              download="Bairagoni-Harith-Resume-ATS.pdf"
-              aria-label="Download ATS PDF"
+              href={resumePdf}
+              download={resumeFilename}
+              aria-label="Download résumé PDF"
             >
               <ArrowDownToLine size={18} />
-              <span>ATS PDF</span>
+              <span>PDF</span>
             </a>
             <button onClick={() => window.print()} aria-label="Print résumé">
               <Printer size={18} />

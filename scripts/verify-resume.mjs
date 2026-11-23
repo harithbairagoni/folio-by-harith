@@ -36,7 +36,16 @@ try {
       if (r.status() >= 400 && r.url().startsWith(base))
         errors.push({ name, status: r.status(), url: r.url() });
     });
-    await page.goto(`${base}/resume.html`, { waitUntil: "networkidle" });
+    await page.goto(base, { waitUntil: "networkidle" });
+    const mobile = width < 600;
+    if (mobile) await page.getByRole("button", { name: "Open navigation" }).click();
+    const navigation = page.locator(mobile ? "#mobile-navigation" : ".premium-nav");
+    await navigation.getByRole("link", { name: "Résumé", exact: true }).click();
+    await page.waitForURL(`${base}/resume.html`);
+    if (context.pages().length !== 1) throw new Error(`${name}: résumé opened another tab`);
+    const models = await page.locator("a[download]").evaluateAll(links => [...new Set(links.map(link => link.getAttribute("href")))]);
+    if (models.length !== 1 || models[0] !== "/resume/harith-focos-original.pdf")
+      throw new Error(`${name}: expected one résumé download format`);
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: `${out}/${name}-opening.png` });
     await page.waitForTimeout(3500);
@@ -68,10 +77,8 @@ try {
       resume.sections.length
     )
       throw new Error(`${name}: missing sections`);
-    await dialog
-      .getByRole("button", { name: "ATS reading", exact: true })
-      .click();
-    await page.screenshot({ path: `${out}/${name}-reader-ats.png` });
+    if (await dialog.getByRole("button", { name: /ATS reading|Original layout/ }).count())
+      throw new Error(`${name}: alternate reading mode is still shown`);
     await page.keyboard.press("Escape");
     if (await dialog.isVisible())
       throw new Error(`${name}: Escape did not close dialog`);
@@ -85,7 +92,7 @@ try {
     await dialog.getByRole("button", { name: "Close résumé" }).click();
     const downloadEvent = page.waitForEvent("download");
     await page
-      .getByRole("link", { name: "Download ATS PDF", exact: true })
+      .getByRole("link", { name: "Download résumé PDF", exact: true })
       .click();
     const download = await downloadEvent;
     await download.saveAs(`${out}/${name}-download.pdf`);
@@ -101,11 +108,6 @@ try {
       createHash("sha256").update(source).digest("hex")
     )
       throw new Error(`${name}: source PDF changed`);
-    const text = await (
-      await page.request.get(`${base}/resume/harith-focos-ats.txt`)
-    ).text();
-    if (!text.includes(resume.email) || !text.includes("SOCIAL IMPACT"))
-      throw new Error(`${name}: incomplete TXT`);
     if (name === "desktop")
       await page.pdf({
         path: `${out}/browser-print.pdf`,
@@ -116,10 +118,9 @@ try {
       name,
       ...layout,
       sections: resume.sections.length,
-      reader: "open, switch, close, jump passed",
+      reader: "same-tab navigation, open, close and jump passed",
       download: download.suggestedFilename(),
       original: "byte-for-byte identical",
-      plainText: "present",
     });
     await context.close();
   }

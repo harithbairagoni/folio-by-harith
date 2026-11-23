@@ -66,44 +66,55 @@ try {
       const stage = sequence.locator(".sequence-sticky");
       const film = sequence.locator(".experience-film");
       await film.scrollIntoViewIfNeeded();
-      await page.waitForFunction(kind => {
+      await page.waitForFunction(({ kind, expected }) => {
         const images = [...document.querySelectorAll(`[data-story="${kind}"] .film-screen img`)];
-        return images.length === 3 && images.every(image => image.complete && image.naturalWidth > 0);
-      }, kind);
-      const clip = index => film.locator("img").nth(index).evaluate(el => getComputedStyle(el).clipPath);
-      if (!manual) {
-        const seek = phase => sequence.evaluate((element, ratio) => {
-          const start = element.getBoundingClientRect().top + scrollY;
-          window.scrollTo({ top: start + (element.clientHeight - innerHeight) * ratio, behavior: "instant" });
-        }, .035 + phase / (count - 1) * .93);
-        const half = kind === "ethanol" ? 1.55 : .55;
-        await seek(half);
-        await page.waitForFunction(kind => {
-          const middle = document.querySelectorAll(`[data-story="${kind}"] .film-screen img`)[1];
-          return /polygon|ellipse/.test(getComputedStyle(middle).clipPath);
-        }, kind);
-        const intermediate = await clip(1);
-        if (name === "desktop" || name === "phone") {
-          await stage.screenshot({ path: `${out}/${name}-${kind}-film-transition.png` });
-        }
-        await seek(count - 1);
-        await page.waitForFunction(kind => {
-          const last = document.querySelectorAll(`[data-story="${kind}"] .film-screen img`)[2];
-          return getComputedStyle(last).clipPath === "inset(0px)";
-        }, kind);
-        if (name === "desktop" || name === "phone") {
-          await stage.screenshot({ path: `${out}/${name}-${kind}-film-finish.png` });
-        }
-        await seek(half);
-        await page.waitForFunction(({ kind, intermediate }) => {
-          const middle = document.querySelectorAll(`[data-story="${kind}"] .film-screen img`)[1];
-          return getComputedStyle(middle).clipPath === intermediate;
-        }, { kind, intermediate });
-      } else {
-        await buttons.last().click();
-        assert.equal(await clip(2), "inset(0px)");
-        assert.equal(await film.locator(".film-scan").count(), 0);
+        return images.length === expected && images.every(image => image.complete && image.naturalWidth > 0);
+      }, {kind, expected: kind === "ethanol" ? 4 : 3});
+      const pose = () => film.locator(".film-frame").evaluateAll(frames =>
+        frames.map(frame => Number(getComputedStyle(frame).opacity)));
+      const beatSources = kind === "ethanol"
+        ? ["integration", "foundations", "equipment", "integration", "integration"]
+        : kind === "land" ? ["records", "survey", "report", "report"] : ["scope", "sources", "brief", "brief"];
+      const seek = phase => sequence.evaluate((element, ratio) => {
+        const start = element.getBoundingClientRect().top + scrollY;
+        window.scrollTo({ top: start + (element.clientHeight - innerHeight) * ratio, behavior: "instant" });
+      }, .035 + phase / (count - 1) * .93);
+      for (let beat = 0; beat < count; beat++) {
+        if (manual) await buttons.nth(beat).click(); else await seek(beat);
+        await page.waitForFunction(({kind, source}) => {
+          const frames = [...document.querySelectorAll(`[data-story="${kind}"] .film-frame`)];
+          const top = frames.findLast(frame => Number(getComputedStyle(frame).opacity) > .99);
+          return top?.querySelector("img").currentSrc.includes(source) &&
+            Number(getComputedStyle(frames[frames.indexOf(top) + 1] ?? top).opacity) === (top === frames.at(-1) ? 1 : 0);
+        }, {kind, source: beatSources[beat]});
       }
+      if (!manual) {
+        for (const phase of [.5, 1.5, 2.5]) {
+          await seek(phase);
+          if (kind !== "ethanol" && phase === 2.5) break; // Final beat reframes the current image.
+          await page.waitForFunction(({kind, index}) => {
+            const frame = document.querySelectorAll(`[data-story="${kind}"] .film-frame`)[index];
+            const {maskImage, opacity} = getComputedStyle(frame);
+            return maskImage.includes("gradient") && Number(opacity) > .12 && Number(opacity) < .98;
+          }, {kind, index: Math.ceil(phase)});
+          if ((name === "desktop" || name === "phone") && phase === .5)
+            await stage.screenshot({ path: `${out}/${name}-${kind}-film-transition.png` });
+        }
+        await seek(.5);
+        await page.waitForFunction(kind => {
+          const frame = document.querySelectorAll(`[data-story="${kind}"] .film-frame`)[1];
+          const opacity = Number(getComputedStyle(frame).opacity);
+          return opacity > .12 && opacity < .98;
+        }, kind);
+      } else {
+        assert.equal((await pose()).at(-1), 1);
+        assert.ok(await film.locator(".film-frame").evaluateAll(frames =>
+          frames.every(frame => getComputedStyle(frame).maskImage === "none")));
+      }
+      assert.ok(await film.locator(".film-crop").evaluate(el => {
+        const box = el.getBoundingClientRect();
+        return Math.abs(box.width / box.height - 1.52) < .01 && getComputedStyle(el).overflow === "hidden";
+      }), "All shots share the corner-free crop");
       await sequence.getByRole("button", { name: "View workflow diagram" }).click();
       await sequence.locator(".story-motion").waitFor();
       let plant;
